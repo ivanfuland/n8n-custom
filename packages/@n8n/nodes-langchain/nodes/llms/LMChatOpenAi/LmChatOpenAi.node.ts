@@ -320,6 +320,16 @@ export class LmChatOpenAi implements INodeType {
 							'Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered. We generally recommend altering this or temperature but not both.',
 						type: 'number',
 					},
+					{
+						displayName: 'Additional Parameters (JSON)',
+						name: 'additionalParams',
+						type: 'json',
+						default: '{}',
+						description: '额外的参数，将直接透传给OpenAI API',
+						typeOptions: {
+							alwaysOpenEditWindow: true,
+						},
+					},
 				],
 			},
 		],
@@ -345,6 +355,7 @@ export class LmChatOpenAi implements INodeType {
 			topP?: number;
 			responseFormat?: 'text' | 'json_object';
 			reasoningEffort?: 'low' | 'medium' | 'high';
+			additionalParams?: string;
 		};
 
 		const configuration: ClientOptions = {
@@ -357,13 +368,27 @@ export class LmChatOpenAi implements INodeType {
 		}
 
 		// Extra options to send to OpenAI, that are not directly supported by LangChain
-		const modelKwargs: {
+		let modelKwargs: {
 			response_format?: object;
 			reasoning_effort?: 'low' | 'medium' | 'high';
+			[key: string]: any;
 		} = {};
 		if (options.responseFormat) modelKwargs.response_format = { type: options.responseFormat };
 		if (options.reasoningEffort && ['low', 'medium', 'high'].includes(options.reasoningEffort))
 			modelKwargs.reasoning_effort = options.reasoningEffort;
+			
+		// 处理额外参数
+		if (options.additionalParams) {
+			try {
+				const additionalParamsObj = JSON.parse(options.additionalParams);
+				modelKwargs = {
+					...modelKwargs,
+					...additionalParamsObj
+				};
+			} catch (error) {
+				this.logger.error(`Failed to parse Additional Parameters JSON: ${error.message}`);
+			}
+		}
 
 		const model = new ChatOpenAI({
 			openAIApiKey: credentials.apiKey as string,
