@@ -37,6 +37,8 @@ LABEL org.opencontainers.image.version=${N8N_VERSION}
 WORKDIR /home/node
 COPY --from=builder /compiled /usr/local/lib/node_modules/n8n
 COPY docker/images/n8n/docker-entrypoint.sh /
+# 复制修改后的包到容器中
+COPY tryfabric-martian-1.3.0.tgz .
 
 # Setup the Task Runner Launcher
 ARG TARGETPLATFORM
@@ -67,6 +69,8 @@ RUN \
 
 # Install npm 11.4.1 to fix the vulnerable cross-spawn dependency
 RUN npm install -g npm@11.4.1
+# 安装修改后的包
+RUN npm install -g ./tryfabric-martian-1.3.0.tgz
 
 ENV SHELL /bin/sh
 USER node
