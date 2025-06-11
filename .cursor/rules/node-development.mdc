@@ -1,0 +1,145 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# n8n节点开发指南
+
+本指南提供在n8n-custom项目中开发新节点的基本流程和最佳实践。
+
+## 节点结构
+
+n8n节点位于`packages/nodes-base/nodes`目录下，每个节点通常包含以下文件：
+
+- **[NodeName].node.ts**：节点的主要实现
+- **[NodeName]Description.ts**：节点描述和属性定义
+- **GenericFunctions.ts**：共享函数
+- **MethodDescription.ts**：API方法描述（如果适用）
+
+## 创建新节点
+
+1. **首先使用n8n CLI工具创建节点模板**：
+   ```bash
+   pnpm exec n8n-node-dev new
+   ```
+
+2. **节点主类结构**：
+   ```typescript
+   export class MyNode implements INodeType {
+     description: INodeTypeDescription = {
+       displayName: '节点显示名称',
+       name: '节点技术名称',
+       icon: '图标名称',
+       group: ['输出', '输入'],
+       version: 1,
+       description: '节点描述',
+       defaults: {
+         name: '节点默认名称',
+       },
+       inputs: ['main'],
+       outputs: ['main'],
+       properties: [
+         // 节点属性配置
+       ],
+     };
+   
+     async execute() {
+       // 节点执行逻辑
+     }
+   }
+   ```
+
+## 节点属性类型
+
+常用的节点属性类型：
+
+- **string**：文本输入
+- **number**：数字输入
+- **boolean**：布尔开关
+- **options**：下拉选择
+- **collection**：对象集合
+- **fixedCollection**：固定结构集合
+- **dateTime**：日期时间
+- **credential**：凭证
+
+## 示例属性定义
+
+```typescript
+{
+  displayName: 'Operation',
+  name: 'operation',
+  type: 'options',
+  default: 'get',
+  options: [
+    {
+      name: 'Get',
+      value: 'get',
+    },
+    {
+      name: 'Create',
+      value: 'create',
+    },
+  ],
+},
+{
+  displayName: 'Resource',
+  name: 'resource',
+  type: 'options',
+  default: 'user',
+  options: [
+    {
+      name: 'User',
+      value: 'user',
+    },
+    {
+      name: 'Task',
+      value: 'task',
+    },
+  ],
+},
+```
+
+## 处理凭证
+
+1. 创建凭证文件：`packages/nodes-base/credentials/[ServiceName]Api.credentials.ts`
+
+2. 定义凭证结构：
+   ```typescript
+   export class ServiceNameApi implements ICredentialType {
+     name = 'serviceNameApi';
+     displayName = 'Service Name API';
+     properties = [
+       {
+         displayName: 'API Key',
+         name: 'apiKey',
+         type: 'string',
+         default: '',
+       },
+     ];
+   }
+   ```
+
+## 测试节点
+
+1. 运行开发环境：
+   ```bash
+   pnpm dev
+   ```
+
+2. 在工作流编辑器中找到并测试你的节点
+
+## 最佳实践
+
+1. **错误处理**：始终包括适当的错误处理
+2. **输入验证**：验证所有用户输入
+3. **表达式支持**：确保适当的字段支持表达式
+4. **命名一致性**：保持与其他节点一致的命名风格
+5. **文档注释**：为函数和复杂逻辑添加注释
+
+## 发布节点
+
+完成节点开发后：
+
+1. 确保通过所有测试
+2. 更新相关文档
+3. 提交代码并创建拉取请求

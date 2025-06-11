@@ -1,0 +1,106 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# n8n-custom 开发指南
+
+本指南提供在n8n-custom项目中开发的基本信息和常用命令。
+
+## 环境要求
+
+- Node.js 20.15或更高版本
+- PNPM 10.2.1或更高版本
+- Docker（用于容器化部署）
+
+## 项目设置
+
+1. 克隆仓库后，安装依赖：
+   ```bash
+   pnpm install
+   ```
+
+2. 构建项目：
+   ```bash
+   pnpm build
+   ```
+
+## 常用开发命令
+
+从`package.json`中可以看到，项目支持以下主要命令：
+
+- **启动开发服务器**：
+  ```bash
+  pnpm dev
+  ```
+
+- **仅启动后端开发服务器**：
+  ```bash
+  pnpm dev:be
+  ```
+
+- **仅启动前端开发服务器**：
+  ```bash
+  pnpm dev:fe
+  ```
+
+- **启动AI功能开发服务器**：
+  ```bash
+  pnpm dev:ai
+  ```
+
+- **运行测试**：
+  ```bash
+  pnpm test
+  ```
+
+- **运行后端测试**：
+  ```bash
+  pnpm test:backend
+  ```
+
+- **运行前端测试**：
+  ```bash
+  pnpm test:frontend
+  ```
+
+- **运行端到端测试**：
+  ```bash
+  pnpm dev:e2e
+  ```
+
+## Docker开发
+
+要构建定制Docker镜像：
+
+```bash
+docker buildx build -t n8n-custom -f docker/images/n8n/Dockerfile .
+```
+
+运行构建的镜像：
+
+```bash
+docker run -it --rm \
+ --name n8n-custom \
+ -p 5678:5678 \
+ -v n8n_data:/home/node/.n8n \
+ n8n-custom
+```
+
+## 目录结构说明
+
+- **packages/cli**：主要命令行工具，包含服务器实现
+- **packages/core**：核心功能库
+- **packages/nodes-base**：所有内置节点的实现
+- **packages/frontend/editor-ui**：前端UI实现
+
+## 定制开发
+
+当进行定制开发时，建议遵循以下步骤：
+
+1. 了解修改涉及的文件和模块
+2. 创建分支进行修改
+3. 测试修改的功能
+4. 构建Docker镜像验证完整功能
+
+对于添加新节点或修改现有节点，参考`packages/nodes-base/nodes`目录中的实现。

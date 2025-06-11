@@ -1,0 +1,82 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# n8n-custom自定义包集成
+
+本文档描述n8n-custom项目中集成的自定义包，特别是`tryfabric-martian`包的集成。
+
+## tryfabric-martian包
+
+此项目集成了修改版的`tryfabric-martian`包（版本1.3.0）。
+
+### 集成位置
+
+在Dockerfile中可以看到：
+
+```dockerfile
+# 复制修改后的包到容器中
+COPY tryfabric-martian-1.3.0.tgz .
+
+# 安装修改后的包
+RUN npm install -g ./tryfabric-martian-1.3.0.tgz
+```
+
+### 包的用途
+
+`tryfabric-martian`是一个用于数据转换和处理的工具包，主要功能包括：
+
+- 文档处理和解析
+- 结构化数据转换
+- 适配各种API接口的数据格式
+
+在n8n中，这个包可能用于增强文档处理和数据转换功能，特别是在与文档相关的工作流中。
+
+### 修改内容
+
+项目使用的是修改版本的`tryfabric-martian`包，而非官方版本。修改可能包括：
+
+- 定制功能以适应n8n特定需求
+- 解决与n8n集成的兼容性问题
+- 增强性能或添加特定功能
+
+## 其他定制包
+
+除了`tryfabric-martian`包外，项目中可能还有其他定制包。这些可以在以下位置找到：
+
+- `patches/`目录：包含对依赖包的补丁
+- `package.json`中的`pnpm.patchedDependencies`部分
+
+在`package.json`中可以看到以下补丁：
+
+```json
+"patchedDependencies": {
+  "bull@4.16.4": "patches/bull@4.16.4.patch",
+  "pkce-challenge@5.0.0": "patches/pkce-challenge@5.0.0.patch",
+  "@types/express-serve-static-core@5.0.6": "patches/@types__express-serve-static-core@5.0.6.patch",
+  "@types/ws@8.18.1": "patches/@types__ws@8.18.1.patch",
+  "@types/uuencode@0.0.3": "patches/@types__uuencode@0.0.3.patch",
+  "vue-tsc@2.2.8": "patches/vue-tsc@2.2.8.patch",
+  "eslint-plugin-n8n-local-rules": "patches/eslint-plugin-n8n-local-rules.patch",
+  "element-plus@2.4.3": "patches/element-plus@2.4.3.patch"
+}
+```
+
+## 集成新自定义包
+
+如需集成新的自定义包，建议遵循以下步骤：
+
+1. 准备包的修改版本（如`.tgz`文件）
+2. 在Dockerfile中添加复制和安装步骤
+3. 确保在需要的地方正确导入和使用该包
+4. 测试集成效果，确保没有兼容性问题
+
+## 更新现有自定义包
+
+更新现有自定义包（如`tryfabric-martian`）时：
+
+1. 准备新版本的包文件
+2. 更新Dockerfile中的版本引用
+3. 测试更新后的功能
+4. 确保与其他组件的兼容性
